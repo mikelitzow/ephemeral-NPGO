@@ -238,20 +238,34 @@ cors <- bakun %>%
   summarise(corPC1 = cor(pc1, value, use = "p"),
             corPC2 = cor(pc2, value, use = "p"))
 
+
+
+# restrict to the area relevant to each mode from Di Lorenzo et al. 2008
+
 cors <- cors %>%
+  filter(LAT != "31N") 
+
+cors <- cors %>%
+  filter(LAT != "60N") 
+
+cors <- cors %>%
+  filter(LAT != "999") 
+
+cor_long <- cors %>%
   pivot_longer(cols = c(corPC1, corPC2))
 
-ggplot(cors, aes(era, value)) +
+ggplot(cor_long, aes(era, value)) +
   geom_bar(stat = "identity") +
   facet_grid(name~LAT)
 
-# something not right!
+sd <- cors %>%
+  group_by(LAT, era) %>%
+  summarise(sdPC1 = sd(corPC1                                                                                        ),
+            sdPC2 = sd(corPC2))
 
-cv <- cors %>%
-  group_by(LAT, name) %>%
-  summarise(cv = mean(value)/sd(value))
+sd  
 
-ggplot(cv, aes(LAT, cv, fill = name)) +
-  geom_bar(stat = "identity", position = "dodge") 
-
-
+NPGOsd <- NPGO %>%
+  group_by(LAT) %>%
+  summarise(sd = sd(corPC2))
+NPGOsd  
